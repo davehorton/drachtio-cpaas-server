@@ -29,7 +29,7 @@ Finally, we have _Provisioned Resources_.  Provisioned Resources are long-lived 
 
 ## CLIENT-SERVER INTERACTION
 
-The normative server architecture will consist of an edge / SBC element, and a cluster of one or more servers; each server running drachtio + freeswitch + node.js + and a single app which provides the server CPAAS application.  The reason for drachtio and freeswitch on the same server is both simplicity of operation and scaling (i.e., cookie-cutter) as well as to simplify the use of TTS (i.e. no need to create a freeswitch module).
+The normative server architecture will consist of an edge / SBC element, and a cluster of one or more servers; each server running drachtio + freeswitch + node.js + the CPAAS application.  The reason for drachtio and freeswitch on the same server is both simplicity of operation and scaling (i.e., cookie-cutter) as well as to simplify the use of TTS (i.e. no need to create a new freeswitch module for TTS).
 
 Additionally, there will be a redis cluster, and possibly a noSQL or SQL database.
 
@@ -67,7 +67,7 @@ Client-server interaction will continue in this fashion until the client determi
 Any calls still in progress when the client closes the connection will be allowed to continue until they are hungup by callers (possibly with a max duration applied).  Any artifacts that have not been shipped to the client at this time (i.e. when the client disconnects) will be purged from the system and will no longer be retrievable.  (TBD on what happens to other resources that may have been allocated on behalf of the application, such as conferences).
 
 #### Outbound call
-It shall be possible to initiate an outbound call as well.  To do so, a customer must make an HTTP POST request to a specific URL, something like 
+It shall be possible to initiate an outbound call as well.  To do so, a customer must make an HTTP POST request to a specific URL, e.g. something like: 
 ```
     /v1/Accounts/{AccountSid}/Calls
 ```
@@ -75,6 +75,8 @@ The POST body may contain a JSON payload with any metadata that the customer wou
 
 Upon receiving this request, the CPAAS server will not yet generate the outbound call attempt.  Instead, it will invoke the web callback that the user has configured for outbound calls.  If a JSON payload was received in the POST request, it is included in the web callback POST request. Once again, the HTTP(S) connection is upgraded to a websocket connection.
 
-In the nodejs world on the client side, an event is triggered indicating an intent to place an outbound call.  The client code is then responsible for responding with a request to actually create the outbound call.  The call will be connected on the near end (i.e. the CPAAS server end) to an IVR endpoint, so that the client can follow a successful connection result by performing media operations (e.g. saying something to the called party).
+In the nodejs world on the client side, an event is triggered indicating an intent to place an outbound call, and any JSON metadata is passed to the client.  The client code is then responsible for responding with a request to actually create the outbound call.  The call will be connected on the near end (i.e. the CPAAS server end) to an IVR endpoint, so that the client can follow a successful connection result by performing media operations (e.g. saying something to the called party).
 
-It is not required that the client follow through and initiate the outbound call upon receiving the callbvack; nor that it do so immediately, if it chooses to so at all.  The invocation of the callback merely represents that an intent to make a call was expressed, but the client code controls what happens next at that point.  The client, for example, may choose to first allocate a Conference Resource, and then outdial from the Conference.
+At that point, the operation proceeds identically to the inbound call scenario described above.
+
+Note that it is not required that the client follow through, and initiate an outbound call upon receiving the callbvack; nor that it do so immediately, if it chooses to so at all.  The invocation of the callback merely represents that an intent to make a call was expressed, but the client code controls what happens next at that point.  The client, for example, may choose to first allocate a Conference Resource, and only then outdial from the Conference.  Or it may choose to do nothing at all, in which case the connection is simply closed from the server side.
