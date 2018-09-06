@@ -1,0 +1,24 @@
+{
+  "name": "drachtio-cpaas-server",
+  "version": "0.0.1",
+  "description": "An open source CPAAS server built using drachtio (drachtio.org)",
+  "main": "app.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "keywords": [
+    "drachtio",
+    "sip",
+    "cpaas"
+  ],
+  "author": "Dave Horton",
+  "license": "MIT",
+  "dependencies": {
+    "config": "^2.0.1",
+    "drachtio-fsmrf": "^1.1.5",
+    "drachtio-srf": "^4.3.5",
+    "pino": "^5.5.0",
+    "redis": "^2.8.0",
+    "socket.io": "^2.1.1"
+  }
+}
