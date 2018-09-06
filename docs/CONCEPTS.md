@@ -1,4 +1,4 @@
-#CONCEPTS
+# CONCEPTS
 
 An application interacts with _Resources_ and _Artifacts_ using _Operations_.
 
